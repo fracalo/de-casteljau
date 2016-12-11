@@ -15,35 +15,40 @@ const setUp = el => {
       circ.classList.add('point-handle')
       circ.key = i
       circ.pathdataLoc = x.pathdataLoc
-      circ.moveEvent = () => {
-        if (circ.watchers)
-          circ.watchers.forEach(f => f())
-      }
       return circ
     })
 
   const segment = points.reduce((ac, p, i, arr) => {
     if (i < arr.length - 1) {
       const nextP = arr[i + 1]
-
       const seg = drawSeg(p, nextP)
-
-      // how is this for tight coupling ?
-      p.watchers = p.watchers || []
-      nextP.watchers = nextP.watchers || []
-
-      seg.update = (x, v) => {
-        seg.setAttribute(x, v)
-      }
-      p.watchers.push(seg.update.bind(p, 'x1', p.cx.value))
-      p.watchers.push(seg.update.bind(p, 'y1', p.cy.value))
-      nextP.watchers.push(seg.update.bind(nextP, 'x2', nextP.cx.value))
-      nextP.watchers.push(seg.update.bind(nextP, 'y2', nextP.cy.value))
-
+      // attach some refs
+      p.segments = Object.assign(
+        p.segments || {},
+        { ahead: seg }
+      )
+      nextP.segments = Object.assign(
+        nextP.segments || {},
+        { behind: seg }
+      )
       ac.push(seg)
     }
     return ac
   }, [])
+
+  const updateControlSeg = (p) => {
+    const { ahead, behind } = p.segments
+    const { cx, cy } = p.style
+    if (ahead) {
+      ahead.setAttribute('x1', parseFloat(cx))
+      ahead.setAttribute('y1', parseFloat(cy))
+    }
+    if (behind) {
+      behind.setAttribute('x2', parseFloat(cx))
+      behind.setAttribute('y2', parseFloat(cy))
+    }
+  }
+
 
   const updatePathData = p => {
     const { cx, cy } = p.style
@@ -71,7 +76,7 @@ const setUp = el => {
 
     // this is truely unfunctional
     updatePathData(dragstartHandler.target)
-    dragstartHandler.target.moveEvent()
+    updateControlSeg(dragstartHandler.target)
   }, 30, { leading: true, trailing: false })
   const dragendHandler = () => {
     document.removeEventListener('mouseup', dragendHandler)
