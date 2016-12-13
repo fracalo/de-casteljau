@@ -6,101 +6,34 @@ import pipe from './utils/pipe'
 
 
 import getPointsWithRef from './utils/get-points-with-pd-ref'
-import drawSeg from './utils/control-point-segments'
-// import { getPoints } from './utils/contour-path-data'
-// import Point from './utils/Point'
-// import Segment from './utils/Segment'
-// import drawPath from './utils/draw-line'
+import { outSegment, controlSegments, outerControlSegmentsUpdate } from './utils/control-segments'
+
 
 const setUp = el => {
   const pathData = el.getPathData({ normalize: true })
   const points = getPointsWithRef(pathData)
     .map((x, i) => {
-      const circ = drawPoint('navy')(x)
+      const circ = drawPoint('rgba(0, 0, 128, 0.4')(x)
       circ.classList.add('point-handle')
       circ.key = i
       circ.pathdataLoc = x.pathdataLoc
       return circ
     })
 
-  const outSegment = points.reduce((ac, p, i, arr) => {
-    if (i < arr.length - 1) {
-      const nextP = arr[i + 1]
-      const seg = drawSeg(p, nextP, 'rgba(128,0,128,0.3)')
-      // attach some refs
-      p.segments = Object.assign(
-        p.segments || {},
-        { ahead: seg }
-      )
-      nextP.segments = Object.assign(
-        nextP.segments || {},
-        { behind: seg }
-      )
-      seg.classList.add('outer-control')
-      ac.push(seg)
-    }
-    return ac
-  }, [])
-  const updateSeg = (seg, p1, p2) => {
-    seg.setAttribute('x1', p1[0])
-    seg.setAttribute('y1', p1[1])
-    seg.setAttribute('x2', p2[0])
-    seg.setAttribute('y2', p2[1])
-    return seg
-  }
+  // generete the outer control segments connected to the points
+  const outerControlSegments = outSegment(points)
 
-  const midSegments = (midSeg = []) => t => outSeg => outSeg.reduce((ac, s, i, arr) => {
-    if (i < arr.length - 1) {
-      const nextS = arr[i + 1]
-      const p1 = lerpSeg(t, s)
-      const p2 = lerpSeg(t, nextS)
-      const seg = midSeg[i] ?
-        updateSeg(midSeg[i], p1, p2) :
-        drawSeg(p1, p2, 'acqua')
-      // seg.classList.add(`mid-seg${i}`)
-      ac.push(seg)
-    }
-    return ac
-  }, [])
-
-  const innerSegment = inSeg => t => midSeg => {
-    const [beforeS, afterS] = midSeg
-    const p1 = lerpSeg(t, beforeS)
-    const p2 = lerpSeg(t, afterS)
-    const seg = inSeg ?
-      updateSeg(inSeg, p1, p2) :
-      drawSeg(p1, p2, 'gold')
-    // seg.classList.add('inner-seg')
-    return seg
-  }
-
-  const controlSegments = t => outSeg => {
-    const midSeg = midSegments()(t)(outSeg)
-    const innerSeg = innerSegment()(t)(midSeg)
-    return (tt => pipe(
-      midSegments(midSeg)(tt),
-      innerSegment(innerSeg)(tt)
-    ))
-  }
-
-  const controlSegmentsUpdate = controlSegments(0.5)(outSegment)
-
-  controlSegmentsUpdate(0.2)(outSegment)
-
-  const updateControlSeg = (p) => {
-    const { ahead, behind } = p.segments
-    const { cx, cy } = p.style
-    if (ahead) {
-      ahead.setAttribute('x1', parseFloat(cx))
-      ahead.setAttribute('y1', parseFloat(cy))
-    }
-    if (behind) {
-      behind.setAttribute('x2', parseFloat(cx))
-      behind.setAttribute('y2', parseFloat(cy))
-    }
-  }
-
-
+  // we get the initial interpolation from UI and call the controlSegments,
+  // which returns the update function to use in this inputs eventListener
+  const inputTEl = document.querySelector('#t')
+  const controlSegmentsUpdate = controlSegments(parseFloat(inputTEl.value) / 100)(outerControlSegments)
+  // we also select label to update onchange
+  const labelT = document.querySelector('[for=t] > span')
+  // add event listener to inputTEl
+  inputTEl.addEventListener('input', _throttle(e => {
+    labelT.textContent = (parseFloat(e.target.value) / 100).toFixed(2)
+    controlSegmentsUpdate(parseFloat(e.target.value) / 100)(outerControlSegments)
+  }), 50, { leading: true, trailing: true })
   const updatePathData = p => {
     const { cx, cy } = p.style
     const pathDataSeg = p.pathdataLoc.ref
@@ -125,9 +58,10 @@ const setUp = el => {
     dragstartHandler.x = e.pageX
     dragstartHandler.y = e.pageY
 
-    // this is truely unfunctional
+    // this is unfunctional
     updatePathData(dragstartHandler.target)
-    updateControlSeg(dragstartHandler.target)
+    outerControlSegmentsUpdate(dragstartHandler.target)
+    controlSegmentsUpdate(parseFloat(inputTEl.value) / 100)(outerControlSegments)
   }, 30, { leading: true, trailing: false })
   const dragendHandler = () => {
     document.removeEventListener('mouseup', dragendHandler)
