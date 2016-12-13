@@ -1,11 +1,16 @@
+import './path-data-polyfill'
 import { throttle as _throttle } from 'lodash'
-import Point from './utils/Point'
-import Segment from './utils/Segment'
 import { drawPoint } from './utils/draw'
-import { getPoints } from './utils/contour-path-data'
+import lerpSeg from './utils/lerp-segment'
+import pipe from './utils/pipe'
+
+
 import getPointsWithRef from './utils/get-points-with-pd-ref'
-import drawPath from './utils/draw-line'
 import drawSeg from './utils/control-point-segments'
+// import { getPoints } from './utils/contour-path-data'
+// import Point from './utils/Point'
+// import Segment from './utils/Segment'
+// import drawPath from './utils/draw-line'
 
 const setUp = el => {
   const pathData = el.getPathData({ normalize: true })
@@ -18,10 +23,10 @@ const setUp = el => {
       return circ
     })
 
-  const segment = points.reduce((ac, p, i, arr) => {
+  const outSegment = points.reduce((ac, p, i, arr) => {
     if (i < arr.length - 1) {
       const nextP = arr[i + 1]
-      const seg = drawSeg(p, nextP)
+      const seg = drawSeg(p, nextP, 'rgba(128,0,128,0.3)')
       // attach some refs
       p.segments = Object.assign(
         p.segments || {},
@@ -31,10 +36,56 @@ const setUp = el => {
         nextP.segments || {},
         { behind: seg }
       )
+      seg.classList.add('outer-control')
       ac.push(seg)
     }
     return ac
   }, [])
+  const updateSeg = (seg, p1, p2) => {
+    seg.setAttribute('x1', p1[0])
+    seg.setAttribute('y1', p1[1])
+    seg.setAttribute('x2', p2[0])
+    seg.setAttribute('y2', p2[1])
+    return seg
+  }
+
+  const midSegments = (midSeg = []) => t => outSeg => outSeg.reduce((ac, s, i, arr) => {
+    if (i < arr.length - 1) {
+      const nextS = arr[i + 1]
+      const p1 = lerpSeg(t, s)
+      const p2 = lerpSeg(t, nextS)
+      const seg = midSeg[i] ?
+        updateSeg(midSeg[i], p1, p2) :
+        drawSeg(p1, p2, 'acqua')
+      // seg.classList.add(`mid-seg${i}`)
+      ac.push(seg)
+    }
+    return ac
+  }, [])
+
+  const innerSegment = inSeg => t => midSeg => {
+    const [beforeS, afterS] = midSeg
+    const p1 = lerpSeg(t, beforeS)
+    const p2 = lerpSeg(t, afterS)
+    const seg = inSeg ?
+      updateSeg(inSeg, p1, p2) :
+      drawSeg(p1, p2, 'gold')
+    // seg.classList.add('inner-seg')
+    return seg
+  }
+
+  const controlSegments = t => outSeg => {
+    const midSeg = midSegments()(t)(outSeg)
+    const innerSeg = innerSegment()(t)(midSeg)
+    return (tt => pipe(
+      midSegments(midSeg)(tt),
+      innerSegment(innerSeg)(tt)
+    ))
+  }
+
+  const controlSegmentsUpdate = controlSegments(0.5)(outSegment)
+
+  controlSegmentsUpdate(0.2)(outSegment)
 
   const updateControlSeg = (p) => {
     const { ahead, behind } = p.segments

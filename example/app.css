@@ -1,9 +1,27 @@
 body{
   margin:0;
+  display: flex
 }
 svg{
-  width: 99vw;
+  flex-basis: 80vw;
   height: 99vh;
+}
+form{
+  background: #222;
+  height: 100vh;
+  flex: 1 1 18vw;
+  color: #fff;
+}
+fieldset{
+  margin: 0;
+}
+input{
+  display: inline-block;
+  margin: 0 1em;
+}
+label{
+  display: block;
+  text-align: center;
 }
 path{
   stroke-width:3;
