@@ -1,13 +1,13 @@
 const svgNS = 'http://www.w3.org/2000/svg'
 const svg = document.querySelector('svg')
 
-export const drawSeg = (from, to, c) => {
-  const l = lineCreator(from, to, c)
+export const drawSeg = (from, to, c, w) => {
+  const l = lineCreator(from, to, c, w)
   svg.appendChild(l)
   return l
 }
 
-function lineCreator(from, to, color) {
+function lineCreator(from, to, color, strokeWidth = 1) {
   const x1 = Array.isArray(from) ? from[0] : parseFloat(from.getAttribute('cx'))
   const y1 = Array.isArray(from) ? from[1] : parseFloat(from.getAttribute('cy'))
   const x2 = Array.isArray(to) ? to[0] : parseFloat(to.getAttribute('cx'))
@@ -18,6 +18,7 @@ function lineCreator(from, to, color) {
   el.setAttribute('y2', y2)
   el.setAttribute('x2', x2)
   el.style.stroke = color
+  el.style.strokeWidth = strokeWidth
   return el
 }
 

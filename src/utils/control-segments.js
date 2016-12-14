@@ -1,11 +1,12 @@
 import lerpSeg from './lerp-segment'
 import pipe from './pipe'
 import { drawSeg, updateSeg, drawPoint, updatePoint } from './control-point-segments'
+const colorRGB = [0, 0, 130]
 
 export const outSegment = points => points.reduce((ac, p, i, arr) => {
   if (i < arr.length - 1) {
     const nextP = arr[i + 1]
-    const seg = drawSeg(p, nextP, 'rgba(128,0,128,0.2)')
+    const seg = drawSeg(p, nextP, `rgba( ${colorRGB.join()}, 0.2)`, 6)
     // attach some refs
     p.segments = Object.assign(
       p.segments || {},
@@ -42,7 +43,7 @@ outSeg.reduce((ac, s, i, arr) => {
     const p2 = lerpSeg(t, nextS)
     const seg = midSeg[i] ?
       updateSeg(midSeg[i], p1, p2) :
-      drawSeg(p1, p2, 'rgba(128,0,128,0.35)')
+      drawSeg(p1, p2, `rgba( ${colorRGB}, 0.35)`, 3)
     // seg.classList.add(`mid-seg${i}`)
     ac.push(seg)
   }
@@ -55,14 +56,14 @@ const innerSegment = inSeg => t => midSeg => {
   const p2 = lerpSeg(t, afterS)
   const seg = inSeg ?
     updateSeg(inSeg, p1, p2) :
-    drawSeg(p1, p2, 'rgba(128,0,128,0.55)')
+    drawSeg(p1, p2, `rgba( ${colorRGB}, 1)`, 1)
   return seg
 }
 const interP = interPoint => t => innerSeg => {
   const p1 = lerpSeg(t, innerSeg)
   const point = interPoint ?
     updatePoint(interPoint, p1) :
-    drawPoint(p1, 'navy')
+    drawPoint(p1, 'red', 4)
   return point
 }
 

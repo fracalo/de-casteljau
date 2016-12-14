@@ -1,8 +1,6 @@
 import './path-data-polyfill'
 import { throttle as _throttle } from 'lodash'
 import { drawPoint } from './utils/draw'
-import lerpSeg from './utils/lerp-segment'
-import pipe from './utils/pipe'
 
 
 import getPointsWithRef from './utils/get-points-with-pd-ref'
@@ -29,11 +27,58 @@ const setUp = el => {
   const controlSegmentsUpdate = controlSegments(parseFloat(inputTEl.value) / 100)(outerControlSegments)
   // we also select label to update onchange
   const labelT = document.querySelector('[for=t] > span')
+
   // add event listener to inputTEl
   inputTEl.addEventListener('input', _throttle(e => {
     labelT.textContent = (parseFloat(e.target.value) / 100).toFixed(2)
     controlSegmentsUpdate(parseFloat(e.target.value) / 100)(outerControlSegments)
   }), 50, { leading: true, trailing: true })
+
+  // animation button listener
+  const animateButton = document.querySelector('.animation-ui__button')
+  const animUiStart = document.querySelector('#anim-ui-from')
+  const animUiEnd = document.querySelector('#anim-ui-to')
+  const animUpdater = t => {
+    inputTEl.value = `${t * 100}`
+    labelT.textContent = t.toFixed(2)
+    controlSegmentsUpdate(t)(outerControlSegments)
+  }
+
+  const animationHandler = e => (
+      start = parseFloat(animUiStart.value),
+      end = parseFloat(animUiEnd.value),
+      step = 0.005,
+      stopAtEnd = false
+  ) => {
+    if (e) e.preventDefault()
+    if (animationHandler.flag) return
+    const originalT = parseFloat(inputTEl.value) / 100
+    const st = start < end ? Math.abs(step) : - Math.abs(step)
+    let t = start
+    const anim = () => {
+      if (st > 0 && (t + st >= end)) {
+        animUpdater(end)
+        animationHandler.flag = false
+        if (!stopAtEnd)
+          animationHandler()(end, originalT, 0.01, true)
+        return
+      }
+      if (st < 0 && (t + st <= end)) {
+        animUpdater(end)
+        animationHandler.flag = false
+        if (!stopAtEnd)
+          animationHandler()(end, originalT, 0.01, true)
+        return
+      }
+      t += st
+      animUpdater(t)
+      window.requestAnimationFrame(anim)
+    }
+    animationHandler.flag = true
+    window.requestAnimationFrame(anim)
+  }
+  animateButton.addEventListener('click', e => animationHandler(e)())
+
   const updatePathData = p => {
     const { cx, cy } = p.style
     const pathDataSeg = p.pathdataLoc.ref

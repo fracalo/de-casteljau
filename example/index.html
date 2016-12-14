@@ -2,16 +2,42 @@
 <html>
 <head>
     <link href='app.css' rel='stylesheet'>
-    <title>svgContour Example</title>
+    <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
+    <title>De Casteljau Demo</title>
 </head>
 <body>
-<form>
-  <h1>De Casteljau Demo</h1>
-  <fieldset>
-    <input id="t" type="range" min='0' value='50' max='100' />
-    <label for='t'>interpolation <span>0.5</span></label>
-  </fieldset>
-</form>
+<section class='ui'>
+  <h3>De-Casteljau Demo</h3>
+  <form>
+    <fieldset>
+      <input id="t" type="range" min='0' value='50' max='100' />
+      <label for='t'>interpolation <span>0.50</span></label>
+    </fieldset>
+
+    <fieldset class='animation-ui'>
+      <div class='animation-ui__title'><p>Animation UI</p></div>
+      <button class='animation-ui__button'>ANIMATE</button>
+      <div class='animation-ui__input'>
+        <label for='anim-ui-from'>from</label>
+        <input id="anim-ui-from" type="number" min='0' value='0' max='1' step='0.05'/>
+      </div>
+      <div class='animation-ui__input'>
+        <label for='anim-ui-to'>to</label>
+        <input id="anim-ui-to" type="number" min='0' value='1' max='1' step='0.05'/>
+      </div>
+      <div class='animation-ui-select'>
+        <div class='animation-ui-select__title'><p>Iteration</p></div>
+        <label for='anim-ui-rewind'>rewind</label>
+        <input id="anim-ui-rewind" name='iteration-strategy' type="radio"/>
+        <label for='anim-ui-rewind'>once</label>
+        <input id="anim-ui-rewind" name='iteration-strategy' type="radio"/>
+      </div>
+
+    </fieldset>
+
+
+    </form>
+</section>
 <svg viewBox='-350 -300 700 600'>
   <marker id="Triangle"
             stroke='#ccc'
@@ -29,7 +55,7 @@
 <!-- some examples -->
   <!-- <path id='one' stroke='#000' d='M-100,-100 C-10,100 0,100 100,0 L200,0 l0,200 C300,100 300,100 200,-100' /> -->
   <!-- <path id='flat' stroke='red' d='M-101,-100 C0,-200 0,200 100,-100  C200,0 250,0 300,-100 ' /> -->
-  <path id='flat' stroke='red' d='M-100,0 C-40,-200 40,-200 100,0' />
+  <path id='flat' stroke='#3d3d3d' d='M-100,0 C-40,-200 40,-200 100,0' />
   <!-- <path id='flatQ' stroke='purple' d='M-100,-100 Q0,-200 100,-100' /> -->
   <!-- <ellipse cx="60" cy="60" rx="50" ry="25" stroke='gold' fill='none' /> -->
 </svg>
