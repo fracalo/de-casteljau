@@ -1,0 +1,87 @@
+body{
+  margin:0;
+  display: flex
+}
+svg{
+  flex-basis: 80vw;
+  height: 99vh;
+}
+.ui{
+  background: #222221;
+  height: 100vh;
+  flex: 1 1 18vw;
+  color: #fff;
+  padding: 1em;
+  font-family:'Space Mono', monospace;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+fieldset{
+  margin: 0;
+  border: 0;
+  padding-top: 1em;
+  border-top:1px solid magenta;
+}
+.animate{
+  min-width: 60%
+}
+#t{
+  display: inline-block;
+  margin: 0 1em;
+  width: calc(100% - 2em);
+}
+
+.animation-ui{
+  display: flex;
+  flex-wrap: wrap;
+
+  &__title{
+    flex: 0 0 100%
+  }
+  &__input{
+    flex: 1 1 25%;
+  }
+  &__input > input {
+    width: 66%
+  }
+  &__button{
+    flex: 1;
+    margin-right: 1em;
+    align-self: flex-end;
+  }
+  &__select {
+    display: flex;
+    flex-direction: column;
+    &__label{
+      display: inline-block
+    }
+  }
+}
+label{
+  display: block;
+  text-transform: uppercase;
+  font-size: 90%;
+}
+label > span {
+  color: magenta;
+  padding-left: 1em;
+}
+path{
+  stroke-width:3;
+  fill: none;
+}
+circle{
+  r: 5;
+  fill: red;
+}
+line{
+  stroke:#ccc;
+  stroke-width:1;
+  pointer-events: none;
+}
+.point-handle {
+  cursor: pointer
+}
+circle:not(.point-handle) {
+  pointer-events: none
+}

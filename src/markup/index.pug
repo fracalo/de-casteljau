@@ -1,0 +1,43 @@
+doctype html
+head
+  link(href='app.css', rel='stylesheet')
+  link(href='https://fonts.googleapis.com/css?family=Space+Mono', rel='stylesheet')
+  title De Casteljau Demo
+section.ui
+  h3 De-Casteljau Demo
+  form
+    fieldset
+      input#t(type='range', min='0', value='50', max='100')
+      label(for='t')
+        | interpolation 
+        span 0.50
+    fieldset.animation-ui
+      .animation-ui__title
+        p Animation UI
+      button.animation-ui__button ANIMATE
+      .animation-ui__input
+        label(for='anim-ui-from') from
+        input#anim-ui-from(type='number', min='0', value='0', max='1', step='0.05')
+      .animation-ui__input
+        label(for='anim-ui-to') to
+        input#anim-ui-to(type='number', min='0', value='1', max='1', step='0.05')
+      .animation-ui__select
+        .animation-ui__select__title
+          p Iteration
+        div
+          label.animation-ui__select__label(for='anim-ui-rewind') rewind
+          input#anim-ui-rewind(name='iteration-strategy', type='radio')
+        div
+          label.animation-ui__select__label(for='anim-ui-rewind') once
+          input#anim-ui-rewind(name='iteration-strategy', type='radio')
+svg(viewbox='-350 -300 700 600')
+  marker#Triangle(stroke='#ccc', refx='14', refy='0', markerwidth='10', markerheight='16', orient='auto', fill='#ccc', viewbox='0 -10 15 20')
+    path(d='M 0 -10 L 0 10 L 15 0 z')
+  line(x1='0', y1='-300', x2='0', y2='300', marker-end='url(#Triangle)')
+  line(y1='0', x1='-300', y2='0', x2='300', marker-end='url(#Triangle)')
+  // <path id='one' stroke='#000' d='M-100,-100 C-10,100 0,100 100,0 L200,0 l0,200 C300,100 300,100 200,-100' />
+  // <path id='flat' stroke='red' d='M-101,-100 C0,-200 0,200 100,-100  C200,0 250,0 300,-100 ' />
+  path#flat(stroke='#3d3d3d', d='M-100,0 C-40,-200 40,-200 100,0')
+  // <path id='flatQ' stroke='purple' d='M-100,-100 Q0,-200 100,-100' />
+  // <ellipse cx="60" cy="60" rx="50" ry="25" stroke='gold' fill='none' />
+script(src='interactive.js')

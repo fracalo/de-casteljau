@@ -9,7 +9,11 @@
     "start": "npm run watch-serve-example & npm run example",
     "watch-serve-example": "watchify src -t babelify -o example/svg-contour.js --debug",
     "example": "cd example && http-server -a 0.0.0.0 -p 7777 -o",
-    "interactive": "watchify src/interactive.js -t babelify -o example/interactive.js --debug"
+    "interactive": "watchify src/interactive.js -t babelify -o example/interactive.js --debug",
+    "scss-to-css": "node-sass --include-path src/scss src/scss/app.scss example/app.css",
+    "watch-scss": "node-sass --include-path src/scss -w src/scss/app.scss  example/app.css ",
+    "compile-pug": "pug -o example -w src/markup",
+    "watch": "npm run interactive & npm run compile-pug & npm run watch-scss"
   },
   "repository": {
     "type": "git",
@@ -29,6 +33,9 @@
     "http-server": "^0.9.0",
     "lodash": "^4.17.2",
     "mocha": "^3.1.2",
+    "node-sass": "^4.0.0",
+    "pug": "^2.0.0-beta6",
+    "pug-cli": "^1.0.0-alpha6",
     "watchify": "^3.7.0"
   },
   "dependencies": {}
