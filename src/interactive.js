@@ -1,20 +1,19 @@
 import './path-data-polyfill'
 import { throttle as _throttle } from 'lodash'
-import { drawPoint } from './utils/draw'
+import { drawPoint } from './utils/render-elements'
 
 
 import getPointsWithRef from './utils/get-points-with-pd-ref'
 import { outSegment, controlSegments, outerControlSegmentsUpdate } from './utils/control-segments'
 
-
 const setUp = el => {
   const pathData = el.getPathData({ normalize: true })
   const points = getPointsWithRef(pathData)
     .map((x, i) => {
-      const circ = drawPoint('rgba(0, 0, 128, 0.4')(x)
+      const circ = drawPoint(x.pos, 'rgba(0, 0, 128, 0.4')
       circ.classList.add('point-handle')
       circ.key = i
-      circ.pathdataLoc = x.pathdataLoc
+      circ.pathdataLoc = x
       return circ
     })
 

@@ -1,6 +1,6 @@
 import lerpSeg from './lerp-segment'
 import pipe from './pipe'
-import { drawSeg, updateSeg, drawPoint, updatePoint } from './control-point-segments'
+import { drawSeg, updateSeg, drawPoint, updatePoint } from './render-elements'
 const colorRGB = [0, 0, 130]
 
 export const outSegment = points => points.reduce((ac, p, i, arr) => {
@@ -77,7 +77,3 @@ export const controlSegments = t => outSeg => {
     interP(lerpPoint)(tt)
   ))
 }
-
-// const controlSegmentsUpdate = controlSegments(0.5)(outSegment)
-//
-// controlSegmentsUpdate(0.2)(outSegment)

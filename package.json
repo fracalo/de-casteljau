@@ -4,10 +4,7 @@
   "description": "contours for svg",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register",
-    "build": "browserify src -o dist/svg-contour.js -t babelify",
-    "start": "npm run watch-serve-example & npm run example",
-    "watch-serve-example": "watchify src -t babelify -o example/svg-contour.js --debug",
+    "start": "npm run example",
     "example": "cd example && http-server -a 0.0.0.0 -p 7777 -o",
     "interactive": "watchify src/interactive.js -t babelify -o example/interactive.js --debug",
     "scss-to-css": "node-sass --include-path src/scss src/scss/app.scss example/app.css",

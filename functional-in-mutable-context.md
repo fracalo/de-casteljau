@@ -11,7 +11,8 @@ so once our elements are drawn we need to find a way to keep a reference to them
 As a solution to this problem I came up with a pattern that while generating the lines would also bind the created elements to the computing functions,
 the computing functions have an element-reference arguments if this is specified the element will just be updated and not redrawn.
 once the control lines are created we get back a function with signature like `t: Number -> outerSegments:[LineElement] -> pipe -> Point`.
-The consists of funcit
-this will be used to the binded elements (side effect) and returns the interpolation point on the curve.
+once the initial function creates the elements it also returns a pipe used for updating,  
+the update pipe does the calculation though each level based on former ( controlPoints -> outerControlSegments -> midControlSegments -> innerControlSegments -> interpolationPoint),
+The binded elements get update immediatly (side effect).
 
-This feels a little bit unnatural because we're modifying the elements through side effects but It looks like a good compromise (at least the best one I can think about)
+This feels a little bit unnatural because we're modifying the elements through side effects but since it's locked in the pipe it looks like a good compromise (at least the best one I can think about).
