@@ -37,46 +37,91 @@ const setUp = el => {
   const animateButton = document.querySelector('.animation-ui__button')
   const animUiStart = document.querySelector('#anim-ui-from')
   const animUiEnd = document.querySelector('#anim-ui-to')
+  const animUIRunOnce = document.querySelector('#anim-ui-once')
+  const animDuration = document.querySelector('#anim-ui-duration')
+  const animCycle = document.querySelector('#anim-ui-cycle')
+  const animCycleQt = document.querySelector('#anim-ui-cycle-qt')
+  const calcCycles = () => {
+    if (! animCycle.checked) return 0
+    if (! animCycleQt.value.match(/^\d{1-2}$/) && parseInt(animCycleQt.value, 10) < 1) {
+      alert('cycle  qt accepts a number from 1 to 99')
+      return
+    }
+    return parseInt(animCycleQt.value, 10) - 1
+  }
+
+  const calcStep = () => 1 / parseFloat(animDuration.value) * 0.0165
+
   const animUpdater = t => {
     inputTEl.value = `${t * 100}`
     labelT.textContent = t.toFixed(2)
     controlSegmentsUpdate(t)(outerControlSegments)
   }
+  const toggleAnimButton = () => toggleAnimButton.running ?
+  (() => {
+    animateButton.textContent = 'ANIMATE'
+    toggleAnimButton.running = false
+  })() :
+  (() => {
+    animateButton.textContent = 'STOP'
+    toggleAnimButton.running = true
+  })()
 
-  const animationHandler = e => (
+  const animationHandler = (
       start = parseFloat(animUiStart.value),
       end = parseFloat(animUiEnd.value),
-      step = 0.005,
-      stopAtEnd = false
+      step = calcStep(),
+      stopAtEnd = animUIRunOnce.checked,
+      cycles = calcCycles()
   ) => {
-    if (e) e.preventDefault()
-    if (animationHandler.flag) return
-    const originalT = parseFloat(inputTEl.value) / 100
+    if (animationHandler.id) {
+      window.cancelAnimationFrame(animationHandler.id)
+      animationHandler.id = null
+      return
+    }
+    animationHandler.originalT = animationHandler.originalT || parseFloat(inputTEl.value) / 100
     const st = start < end ? Math.abs(step) : - Math.abs(step)
     let t = start
     const anim = () => {
       if (st > 0 && (t + st >= end)) {
         animUpdater(end)
-        animationHandler.flag = false
-        if (!stopAtEnd)
-          animationHandler()(end, originalT, 0.01, true)
+        animationHandler.id = null
+        if (cycles > 0)
+          animationHandler(end, start, step, stopAtEnd, cycles - 1)
+        else if (!stopAtEnd)
+          animationHandler(end, animationHandler.originalT, step * 2, true, 0)
+        else {
+          animationHandler.originalT = null
+          toggleAnimButton()
+        }
+
         return
       }
       if (st < 0 && (t + st <= end)) {
         animUpdater(end)
-        animationHandler.flag = false
-        if (!stopAtEnd)
-          animationHandler()(end, originalT, 0.01, true)
+        animationHandler.id = null
+        if (cycles > 0)
+          animationHandler(end, start, step, stopAtEnd, cycles - 1)
+        else if (!stopAtEnd)
+          animationHandler(end, animationHandler.originalT, step * 2, true, 0)
+        else {
+          animationHandler.originalT = null
+          toggleAnimButton()
+        }
+
         return
       }
       t += st
       animUpdater(t)
-      window.requestAnimationFrame(anim)
+      animationHandler.id = window.requestAnimationFrame(anim)
     }
-    animationHandler.flag = true
-    window.requestAnimationFrame(anim)
+    animationHandler.id = window.requestAnimationFrame(anim)
   }
-  animateButton.addEventListener('click', e => animationHandler(e)())
+  animateButton.addEventListener('click', e => {
+    e.preventDefault()
+    animationHandler()
+    toggleAnimButton()
+  })
 
   const updatePathData = p => {
     const { cx, cy } = p.style
@@ -86,9 +131,6 @@ const setUp = el => {
     pathDataSeg.values[valuesLoc + 1] = parseFloat(cy)
     el.setPathData(pathData)
   }
-
-    // const points = Array.from(document.querySelectorAll('.point-handle'))
-
 
   /* event handlers */
   const dragmoveHandler = _throttle(e => {
@@ -114,11 +156,11 @@ const setUp = el => {
     // we reset the attributes in the markup
     // setting a timeout is not neccessary because throttle option trailing is false
     const { cx, cy } = dragstartHandler.target.style
-    dragstartHandler.target.setAttribute('cx', cx)
-    dragstartHandler.target.setAttribute('cy', cy)
+    if (cx) dragstartHandler.target.setAttribute('cx', parseFloat(cx))
+    if (cy) dragstartHandler.target.setAttribute('cy', parseFloat(cy))
     // clean reference (optional)
     dragstartHandler.target = dragstartHandler.x = dragstartHandler.y =
-    dragstartHandler.targetCx = dragstartHandler.targetCy = null // TODO check any leaks ... if everything is ok deleate this section
+    dragstartHandler.targetCx = dragstartHandler.targetCy = null // TODO check leaks
   }
 
   const dragstartHandler = e => {
@@ -136,6 +178,4 @@ const setUp = el => {
     c.addEventListener('mousedown', dragstartHandler)
   })
 }
-/* later just expose the function */
-const curve = document.getElementById('flat')
-setUp(curve)
+window.setUpInteractive = setUp

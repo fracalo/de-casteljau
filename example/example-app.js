@@ -1,9 +1,4 @@
 
-/* global svgContour */
-const testPath = document.querySelector('#flat')
-const offsetPath = svgContour(testPath, {
-  offset: -40,
-  style: { stroke: 'lime', stokeWidth: 1 }
-})
-
-console.log('svgContour returns a ref: ', offsetPath)
+/* all the source code is @ https://github.com/fracalo/de-casteljau */
+const curve = document.getElementById('test-path')
+setUpInteractive(curve)
